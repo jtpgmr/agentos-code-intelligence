@@ -1,25 +1,38 @@
 services:
   agentos-db:
-    image: agnohq/pgvector:18
+    image: ${DOCKER__POSTGRES_IMAGE:-agnohq/pgvector:18}
     container_name: agentos-db
     restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB__DATABASE_NAME:-postgres}
+      POSTGRES_USER: ${DB__USER:-postgres}
+      POSTGRES_PASSWORD: $DB__PASSWORD
     ports:
-      - "5432:5432"
+      - "${DB__PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql
-    environment:
-      POSTGRES_USER: ${DB_USER:-ai}
-      POSTGRES_PASSWORD: ${DB_PASS:-ai}
-      POSTGRES_DB: ${DB_DATABASE:-ai}
     networks:
       - agentos
+    healthcheck:
+      test: 
+        - CMD-SHELL
+        - >-
+          pg_isready
+          -h ${DB__HOST:-agentos-db}
+          -d ${DB__DATABASE_NAME:-postgres}
+          -p ${DB__PORT:-5432}
+          -U ${DB__USER:-postgres}
+      
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
 
   agentos-api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./launch/docker/agentos.Dockerfile
     container_name: agentos-api
-    image: ${IMAGE_NAME:-agentos}:${IMAGE_TAG:-latest}
     # --reload-dir limits the watcher to dirs that contain runtime code.
     command: >
       uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -37,17 +50,44 @@ services:
       AGNO_DEBUG: "True"
       WAIT_FOR_DB: "True"
       AGENTOS_URL: http://127.0.0.1:8000
-      DB_HOST: agentos-db
-      DB_PORT: 5432
-      DB_USER: ${DB_USER:-ai}
-      DB_PASS: ${DB_PASS:-ai}
-      DB_DATABASE: ${DB_DATABASE:-ai}
+      DB_HOST: ${DB__HOST:-agentos-db}
+      DB_PORT: ${DB__PORT:-5432}
+      DB_USER: ${DB__USER:-postgres}
+      DB_PASS: $DB__PASSWORD
+      DB_DATABASE: ${DB__DATABASE_NAME:-postgres}
     depends_on:
-      - agentos-db
+      agentos-db:
+        condition: service_healthy
     networks:
       - agentos
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+  
+  agentui:
+    build:
+      context: .
+      dockerfile: ./launch/docker/agentui.Dockerfile
+    container_name: agentui
+    restart: unless-stopped
+    environment:
+      # NEXT_PUBLIC_* vars are inlined at build time by Next.js.
+      # Same key name as AgentOS, so set it once in your .env if auth is required.
+      NEXT_PUBLIC_OS_SECURITY_KEY: ${NEXT_PUBLIC_OS_SECURITY_KEY:-}
+      NEXT_PUBLIC_AGENTOS_URL: "http://agentos-api:${AGENTOS__PORT:-7777}"
+    ports:
+      - "3000:3000"
+    depends_on:
+      agentos-api:
+        condition: service_started
+    networks:
+      - agentos
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:3000" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    security_opt: [ "no-new-privileges:true" ]
 
 networks:
   agentos:
