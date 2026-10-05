@@ -49,7 +49,7 @@ services:
       RUNTIME_ENV: dev
       AGNO_DEBUG: "True"
       WAIT_FOR_DB: "True"
-      AGENTOS_URL: http://127.0.0.1:8000
+      AGENTOS_URL: http://agentos-api:8000
       DB_HOST: ${DB__HOST:-agentos-db}
       DB_PORT: ${DB__PORT:-5432}
       DB_USER: ${DB__USER:-postgres}
@@ -88,6 +88,21 @@ services:
       retries: 3
       start_period: 20s
     security_opt: [ "no-new-privileges:true" ]
+
+  cloudflared:
+    # Slack: agentos.<YOUR_DOMAIN>.com/slack/events ==> agentos-api:8000/slack/events
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command:
+      - tunnel
+      - --no-autoupdate
+      - run
+      - --token
+      - ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - agentos-api
+    networks:
+      - agentos
 
 networks:
   agentos:

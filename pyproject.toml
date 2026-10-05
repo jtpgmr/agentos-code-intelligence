@@ -12,6 +12,8 @@ dependencies = [
   "cel-python",
   "openai",
   "parallel-web",
+  "pydantic>=2.13.5",
+  "pydantic-settings>=2.15.0",
   "python-dotenv",
   "reportlab",
 ]
