@@ -10,6 +10,8 @@ WORKDIR /app
 ENV PYTHONPATH=/app
 COPY requirements.txt ./
 RUN uv pip sync requirements.txt --system
+# COPY pyproject.toml ./
+# RUN uv sync
 COPY . .
 
 # ---------------------------------------------------------------------------
