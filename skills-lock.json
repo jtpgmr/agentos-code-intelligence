@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "cloudflare": {
+      "source": "cloudflare/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloudflare/SKILL.md",
+      "computedHash": "ec9de05454b2c5101c92d9e4927065258c090fa5207a106d764f7cc07ed55dbb"
+    },
+    "docker-build-strategies": {
+      "source": "docker/skills",
+      "sourceType": "github",
+      "skillPath": "skills/docker-build-strategies/SKILL.md",
+      "computedHash": "e6a297d613873cf74b030655ee8405ca4434980cfb0dfd412ac5aa4e213d3d5c"
+    },
+    "docker-compose-patterns": {
+      "source": "docker/skills",
+      "sourceType": "github",
+      "skillPath": "skills/docker-compose-patterns/SKILL.md",
+      "computedHash": "391f366bb0e60f5c7c48ecc814b917e7dae797edbb58625d228cb951d7a538ee"
+    },
+    "openrouter-models": {
+      "source": "openrouterteam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/openrouter-models/SKILL.md",
+      "computedHash": "d1ef33877a30b9b22c0f1a2cedd54f795c9459ae70d8bb66978feba526549fc4"
+    },
+    "pydantic": {
+      "source": "pydantic/pydantic",
+      "sourceType": "github",
+      "skillPath": "skills/pydantic/SKILL.md",
+      "computedHash": "65f68dbab0f7e60bfd26998350d674a104848daf23311067e0829758a7cf6f91"
+    }
+  }
+}

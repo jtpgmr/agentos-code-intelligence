@@ -3,6 +3,93 @@
     "agno-docs": {
       "type": "http",
       "url": "https://docs.agno.com/mcp"
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${MCP_CONTEXT7_API_KEY}"
+      }
+    },
+    "exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp",
+      "headers": {
+        "x-api-key": "Bearer ${MCP_EXA_API_KEY}"
+      }
+    },
+    "docker-api": {
+      "command": "docker",
+      "args": [
+        "mcp",
+        "gateway",
+        "run",
+        "--profile",
+        "api"
+      ],
+      "env": {
+        "DOCKER_MCP_IN_CONTAINER": "1"
+      }
+    },
+    "docker-frontend": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "mcp",
+        "gateway",
+        "run",
+        "--profile",
+        "frontend"
+      ],
+      "env": {
+        "DOCKER_MCP_IN_CONTAINER": "1"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "."
+      ]
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "firecrawl-mcp"
+      ]
+    },
+    "tavily": {
+      "type": "http",
+      "url": "https://mcp.tavily.com/mcp"
+    },
+    "mcpdoc": {
+      "command": "uvx",
+      "args": [
+        "--with",
+        "mcp<2.0.0",
+        "--from",
+        "mcpdoc",
+        "mcpdoc",
+        "--yaml",
+        ".agents/llms_txt.yaml",
+        "--follow-redirects",
+        "--transport",
+        "stdio"
+      ]
+    },
+    "agentos-db": {
+      "command": "uvx",
+      "args": [
+        "--with",
+        "mcp<2.0.0",
+        "postgres-mcp",
+        "--access-mode=unrestricted"
+      ],
+      "env": {
+        "DATABASE_URI": "$DB_URI"
+      }
     }
   }
 }

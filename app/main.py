@@ -12,12 +12,15 @@ from agno.os.config import AuthorizationConfig
 from agno.os.interfaces.agui import AGUI
 from agno.utils.log import log_info
 
+from agents.agui_openui_assistant import agui_openui_assistant
 from agents.builder import platform_builder
 from agents.engineer import platform_engineer
 from agents.manager import platform_manager
+from agents.slack_interface_assistant import slack_interface_assistant
 from app.knowledge import product_knowledge, shared_knowledge
 from app.registry import registry
 from app.schedules import register_schedules
+from app.settings import get_settings
 from db import get_postgres_db
 from teams.lead import agno_team
 from workflows.deployment_check import deployment_check
@@ -26,33 +29,42 @@ from workflows.run_evals import run_evals
 # ---------------------------------------------------------------------------
 # Environment
 # ---------------------------------------------------------------------------
-runtime_env = getenv("RUNTIME_ENV", "prd")
+# runtime_env = getenv("RUNTIME_ENV", "prd")
 # Used by the scheduler and the OAuth server when MCP OAuth is enabled.
-agentos_url = getenv("AGENTOS_URL", "http://127.0.0.1:8000")
+# agentos_url = getenv("AGENTOS_URL", "http://127.0.0.1:8000")
+
+settings = get_settings()
+print(settings)
+agentos_url, runtime_env = settings.agentos_url, settings.runtime_env
+
+# slack_settings = settings.slack
+slack_bot_token, slack_signing_secret = settings.slack.bot_token, settings.slack.signing_secret
 
 # ---------------------------------------------------------------------------
 # Interfaces
 # - Agno becomes available on Slack when both env vars are set
 # ---------------------------------------------------------------------------
-SLACK_BOT_TOKEN = getenv("SLACK_BOT_TOKEN", "")
-SLACK_SIGNING_SECRET = getenv("SLACK_SIGNING_SECRET", "")
+# SLACK_BOT_TOKEN = getenv("SLACK_BOT_TOKEN", "")
+# SLACK_SIGNING_SECRET = getenv("SLACK_SIGNING_SECRET", "")
+
 
 interfaces: list = []
-if SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET:
+if slack_bot_token and slack_signing_secret:
     from agno.os.interfaces.slack import Slack
 
     interfaces.append(
         Slack(
-            team=agno_team,
+            agent=slack_interface_assistant,
             streaming=True,
-            token=SLACK_BOT_TOKEN,
-            signing_secret=SLACK_SIGNING_SECRET,
-            resolve_user_identity=True,
+            token=slack_bot_token.get_secret_value(),
+            signing_secret=slack_signing_secret.get_secret_value(),
             loading_text="Pulling the thread...",
+            resolve_user_identity=True,
+            # reply_to_mentions_only=False,
         )
     )
 
-interfaces.append(AGUI(team=agno_team))
+interfaces.append(AGUI(agent=agui_openui_assistant))
 # ---------------------------------------------------------------------------
 # MCP OAuth — enabled by setting the MCP_CONNECT_SECRET environment variable.
 # Connect your favorite AI apps and coding agents to a secure /mcp using OAuth.
@@ -61,7 +73,7 @@ MCP_CONNECT_SECRET = getenv("MCP_CONNECT_SECRET", "")
 
 mcp_auth = None
 if MCP_CONNECT_SECRET:
-    from agno.os import AgentOSBuiltinAuth
+    from agno.os.mcp_auth_builtin import AgentOSBuiltinAuth
 
     mcp_auth = AgentOSBuiltinAuth(
         url=agentos_url,

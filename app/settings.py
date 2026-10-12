@@ -6,10 +6,14 @@ Shared runtime objects for the platform.
 """
 
 from dataclasses import dataclass
+from enum import Enum
 from functools import lru_cache
+from pathlib import Path
 
 from agno.models.openai import OpenAILike, OpenAIResponses
+from agno.models.openrouter import OpenRouterResponses
 from pydantic import (
+    DirectoryPath,
     Field,
     SecretStr,
 )
@@ -19,13 +23,12 @@ BASE_SETTINGS_CONFIG = SettingsConfigDict(
     extra="ignore",
     case_sensitive=False,
     env_file=".env",
-    env_nested_delimiter="__",
     env_ignore_empty=True,
 )
 
 
-class AIModelSettings(BaseSettings):
-    model_config = SettingsConfigDict({**BASE_SETTINGS_CONFIG, "env_prefix": "AI__"})
+class AISettings(BaseSettings):
+    model_config = SettingsConfigDict({**BASE_SETTINGS_CONFIG, "env_prefix": "AI_"})
 
     api_key: SecretStr
     provider: str = "OpenAI"
@@ -33,15 +36,34 @@ class AIModelSettings(BaseSettings):
     base_url: str | None = None
 
 
+class SlackSettings(BaseSettings):
+    model_config = SettingsConfigDict({**BASE_SETTINGS_CONFIG, "env_prefix": "SLACK_"})
+
+    bot_token: SecretStr
+    signing_secret: SecretStr
+
+
 class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(**BASE_SETTINGS_CONFIG)
 
-    ai: AIModelSettings = Field(default_factory=AIModelSettings)  # type: ignore[arg-type]
+    runtime_env: str = "prd"
+    codebase_dir: DirectoryPath = Path(__file__).resolve().parent.parent
+
+    # Used by the scheduler and the OAuth server when MCP OAuth is enabled.
+    agentos_url: str = "http://127.0.0.1:8000"
+
+    ai: AISettings = Field(default_factory=AISettings)  # type: ignore[arg-type]
+    slack: SlackSettings = Field(default_factory=SlackSettings)  # type: ignore[arg-type]
 
 
 @lru_cache
-def getSettings() -> AppSettings:
+def get_settings() -> AppSettings:
     return AppSettings()
+
+
+class ProviderClasses(Enum):
+    openai = OpenAIResponses
+    openrouter = OpenRouterResponses
 
 
 @dataclass
@@ -52,10 +74,8 @@ class ModelProps:
     api_key: str | None = None
 
 
-def default_model(
-    settings: AIModelSettings | None = None, model_name: str | None = None
-) -> OpenAILike | OpenAIResponses:
-    ai_settings: AIModelSettings = settings or getSettings().ai
+def default_model(settings: AISettings | None = None, model_name: str | None = None) -> OpenAILike | OpenAIResponses:
+    ai_settings: AISettings = settings or get_settings().ai
 
     kwargs = ModelProps(
         id=model_name or ai_settings.model_name,
@@ -64,11 +84,13 @@ def default_model(
         base_url=ai_settings.base_url,
     )
 
-    if not kwargs.provider or kwargs.provider.lower() == "openai":
-        return OpenAIResponses(
-            **kwargs.__dict__,
-        )
+    model_provider = kwargs.provider.lower() if kwargs.provider else "openai"
 
-    return OpenAILike(
+    response_class = (
+        ProviderClasses[model_provider].value if model_provider in ProviderClasses.__members__ else OpenAILike
+    )
+
+    return response_class(
         **kwargs.__dict__,
+        store=False,  # Disable stateful features by default
     )

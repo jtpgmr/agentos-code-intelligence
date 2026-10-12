@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "slack-gif-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/slack-gif-creator/SKILL.md",
+      "computedHash": "fab4fcfcaed371071069d61a3ab94dff15d10d36403ff269d147ea986cd98083"
+    },
+    "slack-messaging": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "skillPath": "partner-built/slack/skills/slack-messaging/SKILL.md",
+      "computedHash": "c61468452cd59a348d0800ed5454c4206084d11089fffd14d77a685a29c7ba93"
+    },
+    "slack-search": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "skillPath": "partner-built/slack/skills/slack-search/SKILL.md",
+      "computedHash": "e5e3036a66093d3ff1d392b7c56fab0ba5d2f0d026d6bc5717f27d6935918772"
+    }
+  }
+}

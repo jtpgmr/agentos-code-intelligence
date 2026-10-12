@@ -1,0 +1,39 @@
+- name: Agno
+  llms_txt: docs.agno.com/llms.txt
+  # host: docs.agno.com
+  # tags: ["coding"]
+
+- name: Pydantic
+  llms_txt: pydantic.dev/docs/llms.txt
+  # host: pydantic.dev
+  # tags: ["coding"]
+
+- name: Cloudflare
+  llms_txt: developers.cloudflare.com/llms.txt
+  # host: developers.cloudflare.com
+
+- name: AGUI
+  llms_txt: docs.ag-ui.com/llms.txt
+  # host: docs.ag-ui.com
+
+- name: OpenUI
+  llms_txt: openui.com/llms.txt
+  # host: openui.com
+
+- name: Docker
+  llms_txt: docs.docker.com/llms.txt
+  # host: docs.docker.com
+
+- name: OpenAI
+  llms_txt: developers.openai.com/docs/llms.txt
+  host: developers.openai.com
+  # tags: ["ai_models"]
+
+- name: OpenRouter
+  llms_txt: openrouter.ai/llms.txt
+  host: openrouter.ai
+  # tags: ["ai_models"]
+
+- name: Slack
+  llms_txt: slack.com/llms.txt
+  # host: slack.com
