@@ -30,6 +30,18 @@
       "sourceType": "github",
       "skillPath": "skills/pydantic/SKILL.md",
       "computedHash": "65f68dbab0f7e60bfd26998350d674a104848daf23311067e0829758a7cf6f91"
+    },
+    "use-railway": {
+      "source": "railwayapp/railway-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/railway/skills/use-railway/SKILL.md",
+      "computedHash": "9e8bf61b5389f3f93ebe30ab75321c045f2f75686a129898ef15dd4e3e04fc46"
+    },
+    "workos": {
+      "source": "workos/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/workos/skills/workos/SKILL.md",
+      "computedHash": "77e6f96f16aaf6363cf5d3d816e1bbe1321d6c0daa1c8be1a116cbd138c5413f"
     }
   }
 }

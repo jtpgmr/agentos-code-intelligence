@@ -90,6 +90,18 @@
       "env": {
         "DATABASE_URI": "$DB_URI"
       }
+    },
+    "workos": {
+      "type": "http",
+      "url": "https://mcp.workos.com/mcp"
+    },
+    "railway": {
+      "type": "http",
+      "url": "https://mcp.railway.com"
+    },
+    "agentos-code-intelligence": {
+      "type": "http",
+      "url": "http://localhost:8000/mcp"
     }
   }
 }

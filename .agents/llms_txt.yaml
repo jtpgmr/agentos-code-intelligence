@@ -37,3 +37,7 @@
 - name: Slack
   llms_txt: slack.com/llms.txt
   # host: slack.com
+
+- name: ClickUp
+  llms_txt: developer.clickup.com/llms.txt
+  host: developer.clickup.com

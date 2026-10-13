@@ -15,8 +15,9 @@ from agno.utils.log import log_info
 from agents.agui_openui_assistant import agui_openui_assistant
 from agents.builder import platform_builder
 from agents.engineer import platform_engineer
+from agents.learning_coach import learning_coach
 from agents.manager import platform_manager
-from agents.slack_interface_assistant import slack_interface_assistant
+from agents.slack_assistant import slack_assistant
 from app.knowledge import product_knowledge, shared_knowledge
 from app.registry import registry
 from app.schedules import register_schedules
@@ -34,7 +35,6 @@ from workflows.run_evals import run_evals
 # agentos_url = getenv("AGENTOS_URL", "http://127.0.0.1:8000")
 
 settings = get_settings()
-print(settings)
 agentos_url, runtime_env = settings.agentos_url, settings.runtime_env
 
 # slack_settings = settings.slack
@@ -54,7 +54,7 @@ if slack_bot_token and slack_signing_secret:
 
     interfaces.append(
         Slack(
-            agent=slack_interface_assistant,
+            agent=slack_assistant,
             streaming=True,
             token=slack_bot_token.get_secret_value(),
             signing_secret=slack_signing_secret.get_secret_value(),
@@ -71,6 +71,7 @@ interfaces.append(AGUI(agent=agui_openui_assistant))
 # ---------------------------------------------------------------------------
 MCP_CONNECT_SECRET = getenv("MCP_CONNECT_SECRET", "")
 
+print(settings.auth_provider)
 mcp_auth = None
 if MCP_CONNECT_SECRET:
     from agno.os.mcp_auth_builtin import AgentOSBuiltinAuth
@@ -126,7 +127,7 @@ agent_os = AgentOS(
     lifespan=lifespan,
     db=get_postgres_db(),
     knowledge=[shared_knowledge, product_knowledge],
-    agents=[platform_builder, platform_manager, platform_engineer],
+    agents=[platform_builder, platform_manager, platform_engineer, learning_coach],
     teams=[agno_team],
     workflows=[deployment_check, run_evals],
     interfaces=interfaces,

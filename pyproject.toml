@@ -11,12 +11,15 @@ dependencies = [
   "ag-ui-protocol>=1.0.0",
   "agno[os,mcp,slack,pgvector,psycopg,csv,excel,docx,pdf,website]==3.0.4",
   "cel-python",
+  "ddgs>=9.16.0",
   "openai",
   "parallel-web",
   "python-dotenv",
   "pyyaml>=6.0.3",
   "reportlab",
   "sqlalchemy[asyncio]>=2.1.4",
+  "youtube-transcript-api>=1.2.4",
+  "yt-dlp>=2026.8.19",
 ]
 
 [project.optional-dependencies]

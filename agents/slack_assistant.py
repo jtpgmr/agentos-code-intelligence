@@ -1,4 +1,5 @@
 from agno.agent import Agent
+from agno.learn import LearningMachine, LearningMode, UserMemoryConfig, UserProfileConfig
 from agno.skills import LocalSkills, Skills
 from agno.tools.slack import SlackTools
 
@@ -9,19 +10,32 @@ from db import get_postgres_db
 settings = get_settings()
 
 llm_txt_sources = select_llms_txt_sources(selected_names=["Slack"], selected_tags=["ai_models"])
-print(
-    [f"LLM TXT URL Allowed Hosts: {[sources.allowed_hosts for sources in llm_txt_sources]}"],
-)
 
-slack_interface_assistant = Agent(
-    id="slack-interface-assistant",
-    name="Slack Interface Assistant",
+learning = LearningMachine(
+    user_profile=UserProfileConfig(
+        mode=LearningMode.AGENTIC,
+    ),
+    user_memory=UserMemoryConfig(
+        mode=LearningMode.AGENTIC,
+    ),
+)
+slack_assistant = Agent(
+    id="slack-assistant",
+    name="Slack Assistant",
     model=default_model(),
     db=get_postgres_db(),
-    tools=[SlackTools(settings.slack.bot_token.get_secret_value()), *llm_txt_sources],
+    tools=[
+        SlackTools(
+            settings.slack.bot_token.get_secret_value(),
+            enable_get_channel_info=True,
+            enable_get_user_info=True,
+            enable_list_users=True,
+        ),
+        *llm_txt_sources,
+    ],
     skills=Skills(loaders=[LocalSkills(path=str(settings.codebase_dir / ".agents" / "slack" / ".agents" / "skills"))]),
     instructions=[
-        "You are the Slack Interface Assistant.",
+        "You are the Slack Assistant.",
         "agentos-code-intelligence is your Slack bot identity, not a documentation source.",
         "The following documentation indexes are configured:",
         f"{[sources.allowed_hosts for sources in llm_txt_sources]}",

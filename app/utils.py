@@ -35,6 +35,4 @@ def select_llms_txt_sources(
         )
     ]
 
-    print(tools[0].allowed_hosts)
-
     return tools
